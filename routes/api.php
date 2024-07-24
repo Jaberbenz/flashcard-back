@@ -21,11 +21,16 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'authenticate']);
+
+Route::get('dashboard', [AuthController::class, 'dashboard'])
+        ->middleware('auth:sanctum');
 
 Route::get('/cards', [CardController::class, 'index']);
 Route::get('/cards/{id}', [CardController::class, 'show']);
 Route::get('/cards/search/{title}', [CardController::class, 'search']);
+
+
 
 // Route publique pour récupérer toutes les catégories
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -43,6 +48,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Category routes
     // Route::apiResource('categories', CategoryController::class);
     Route::get('/category-details/{id}', [CategoryController::class, 'showCategoryDetails']);
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+
 
 
     // Theme routes

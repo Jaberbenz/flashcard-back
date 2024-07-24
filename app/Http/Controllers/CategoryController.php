@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class CategoryController extends Controller
 {
@@ -18,10 +20,15 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
         ]);
-
-        $category = Category::create($request->all());
+    
+        // Ajouter l'ID de l'utilisateur à la requête
+        $data = $request->all();
+        $data['user_id'] = Auth::id();
+    
+        // Créer la catégorie avec les données fournies
+        $category = Category::create($data);
+    
         return response()->json($category, 201);
     }
 
@@ -44,21 +51,36 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Category not found.'], 404);
         }
 
+        // Vérifier si l'utilisateur connecté est le créateur de la catégorie
+        if ($category->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized to update this category.'], 403);
+        }
+
+        $request->validate([
+            'category' => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+
         $category->update($request->all());
         return response()->json($category, 200);
     }
 
     public function destroy($id)
-    {
-        $category = Category::find($id);
+{
+    $category = Category::find($id);
 
-        if (!$category) {
-            return response()->json(['message' => 'Category not found.'], 404);
-        }
-
-        $category->delete();
-        return response()->json(null, 204);
+    if (!$category) {
+        return response()->json(['message' => 'Category not found.'], 404);
     }
+
+    // Vérifier si l'utilisateur connecté est le créateur de la catégorie
+    if ($category->user_id !== Auth::id()) {
+        return response()->json(['message' => 'Unauthorized to delete this category.'], 403);
+    }
+
+    $category->delete();
+    return response()->json(['message' => 'Category deleted successfully.'], 204);
+}
 
     public function showCategoryDetails($id)
     {
@@ -77,6 +99,11 @@ class CategoryController extends Controller
 
         return response()->json([
             'category' => $category->name,
+            'id' => $category->id,
+            'description' => $category->description,
+            'created_at' => $category->created_at,
+            'updated_at' => $category->updated_at,
+            'user_id' => $category->user_id,
             'themes_count' => $category->themes->count(),
             'themes_details' => $themesDetails,
         ]);

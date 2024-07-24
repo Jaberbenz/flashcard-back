@@ -13,47 +13,72 @@ class AuthController extends Controller
     // Méthode pour l'inscription des utilisateurs
     public function register(Request $request)
     {
+        // Valider les données de l'inscription
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
+    
+        // Créer un nouvel utilisateur
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-
+    
+        // Générer un token d'accès pour l'utilisateur
         $token = $user->createToken('auth_token')->plainTextToken;
-
+    
+        // Retourner la réponse avec les informations de l'utilisateur et le token
         return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], 201);
     }
+    
 
-    // Méthode pour la connexion des utilisateurs
-    public function login(Request $request)
+    public function authenticate(Request $request) 
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // Trouver l'utilisateur par e-mail
+        $user = User::where('email', $request->email)->first();
+    
+        // Vérifier si l'utilisateur existe et si le mot de passe est correct
+        if ($user && Hash::check($request->password, $user->password)) {
+            // Créer un token d'authentification pour l'utilisateur
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            // Renvoyer les informations de l'utilisateur et le token
             return response()->json([
-                'message' => 'Invalid login details'
-            ], 401);
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    // Ajoutez d'autres informations utilisateur si nécessaire
+                ],
+                'token' => $token,
+            ]);
+        } else {
+            // Répondre avec une erreur si les identifiants sont incorrects
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
+    }
 
-        $user = User::where('email', $request['email'])->firstOrFail();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+    public function dashboard()
+    {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 200);
+            'message' => 'You are in the dashboard'
+        ]);
     }
 
     // Méthode pour la déconnexion des utilisateurs
