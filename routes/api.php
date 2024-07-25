@@ -56,6 +56,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
 
     Route::post('/themes', [ThemeController::class, 'store']);
+    Route::post('/themes/{id}/duplicate', [ThemeController::class, 'duplicate']);
+
 
     // Theme routes
     Route::apiResource('themes', ThemeController::class);

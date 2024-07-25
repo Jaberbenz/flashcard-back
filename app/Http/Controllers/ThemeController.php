@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Theme;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ThemeController extends Controller
 {
@@ -52,5 +53,31 @@ class ThemeController extends Controller
     {
         Theme::destroy($id);
         return response(null, 204);
+    }
+
+    public function duplicate($id)
+    {
+        // Find the original theme by ID
+        $originalTheme = Theme::with('cards')->find($id);
+
+        if (!$originalTheme) {
+            return response()->json(['message' => 'Theme not found.'], 404);
+        }
+
+        // Duplicate the theme details
+        $duplicatedTheme = $originalTheme->replicate();
+        $duplicatedTheme->name .= ' (Copy)';
+        $duplicatedTheme->duplicated = 1; // Mark as duplicated
+        $duplicatedTheme->user_id = Auth::id(); // Set the user ID to the duplicator's ID
+        $duplicatedTheme->save();
+
+        // Duplicate the associated cards
+        foreach ($originalTheme->cards as $card) {
+            $newCard = $card->replicate();
+            $newCard->theme_id = $duplicatedTheme->id;
+            $newCard->save();
+        }
+
+        return response()->json($duplicatedTheme, 201);
     }
 }
