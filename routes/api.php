@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/cards/{id}', [CardController::class, 'update']);
     Route::delete('/cards/{id}', [CardController::class, 'destroy']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::put('/users/{id}', [UserController::class, 'update']);
 
     // Category routes
     // Route::apiResource('categories', CategoryController::class);
