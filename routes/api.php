@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
 
-
+    Route::post('/themes', [ThemeController::class, 'store']);
 
     // Theme routes
     Route::apiResource('themes', ThemeController::class);

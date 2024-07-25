@@ -27,7 +27,18 @@ class ThemeController extends Controller
 
     public function show($id)
     {
-        return Theme::find($id);
+        // Charger le thème avec ses cartes
+        $theme = Theme::with('cards')->find($id);
+
+        if (!$theme) {
+            return response()->json(['message' => 'Theme not found.'], 404);
+        }
+
+        // Ajouter le nombre de cartes
+        $themeData = $theme->toArray();
+        $themeData['cards_count'] = $theme->cards->count();
+
+        return response()->json($themeData);
     }
 
     public function update(Request $request, $id)

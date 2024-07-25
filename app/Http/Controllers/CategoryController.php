@@ -92,8 +92,14 @@ class CategoryController extends Controller
 
         $themesDetails = $category->themes->map(function ($theme) {
             return [
-                'theme' => $theme->name,
-                'cards_count' => $theme->cards->count(),
+            'id' => $theme->id,
+            'name' => $theme->name,
+            'description' => $theme->description,
+            'public' => $theme->public,
+            'user_id' => $theme->user_id,
+            'category_id' => $theme->category_id,
+            'cards_count' => $theme->cards->count(),
+            'cards' => $theme->cards,
             ];
         });
 
