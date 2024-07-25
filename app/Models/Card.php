@@ -10,7 +10,7 @@ class Card extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'front_text', 'front_image', 'front_video', 'front_audio', 'back', 'theme_id'
+        'front', 'back', 'theme_id'
     ];
 
     public function theme()
