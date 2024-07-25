@@ -14,7 +14,6 @@ class Review extends Model
         'review_date',
         'max_level',
         'user_id',
-        'theme_id',
         'level',
     ];
 
@@ -23,8 +22,13 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function theme()
+    public function themes()
     {
-        return $this->belongsTo(Theme::class);
+        return $belongsToMany(Theme::class);
+    }
+
+    public function cards()
+    {
+        return $belongsToMany(Card::class);
     }
 }
